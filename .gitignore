@@ -1,0 +1,33 @@
+# Secrets
+session.json
+run.bat
+
+# Generated data
+results.json
+tags.json
+failed_tracks.txt
+track_ids.json
+track_ids_array.js
+soundcloud_urls.txt
+
+# Debug/test scripts
+debug_playlist.js
+test_*.py
+
+# Generated JS scripts
+create_playlist.js
+like_script.js
+like_script_v2.js
+
+# Internal
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MART</title>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1e1e1e;
+  --border: #2a2a2a;
+  --text: #e0e0e0;
+  --text2: #888;
+  --accent: #f60;
+  --accent2: #ff8533;
+  --green: #2ecc40;
+  --red: #e74c3c;
+  --yellow: #f1c40f;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.header .user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.header .user-info img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+/* Setup panel */
+.setup {
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.setup h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.setup .steps {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text2);
+}
+
+.setup .steps b { color: var(--text); }
+.setup .steps code {
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: all;
+}
+
+.setup .token-row {
+  display: flex;
+  gap: 8px;
+}
+
+.setup input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.setup input:focus { outline: none; border-color: var(--accent); }
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--accent2); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover:not(:disabled) { border-color: var(--text2); color: var(--text); }
+.btn-green { background: var(--green); color: #000; }
+.btn-green:hover:not(:disabled) { opacity: 0.9; }
+
+.error-msg { color: var(--red); font-size: 13px; margin-top: 8px; }
+
+/* Main content */
+.main { display: none; padding: 0 24px 180px; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin: 20px 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .count {
+  background: var(--surface2);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin-left: 6px;
+}
+
+/* Search / filter bar */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.filter-bar input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.filter-bar input:focus { outline: none; border-color: var(--accent); }
+
+/* Track list */
+.track-list { display: flex; flex-direction: column; gap: 2px; }
+
+.track-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.track-row:hover { background: var(--surface2); }
+.track-row.expanded { background: var(--surface2); border-radius: 6px 6px 0 0; }
+
+.track-num { color: var(--text2); font-size: 12px; text-align: right; }
+.track-artist { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track-title { color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.track-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.status-matched { background: #1a3a1a; color: var(--green); }
+.status-no_match { background: #3a2a1a; color: var(--yellow); }
+.status-failed { background: #3a1a1a; color: var(--red); }
+.status-swapped { background: #1a2a3a; color: #3498db; }
+
+.track-link { color: var(--accent); text-decoration: none; font-size: 12px; }
+.track-link:hover { text-decoration: underline; }
+
+/* Expanded track detail */
+.track-detail {
+  display: none;
+  background: var(--surface2);
+  border-radius: 0 0 6px 6px;
+  padding: 16px;
+  margin-bottom: 2px;
+}
+
+.track-detail.show { display: block; }
+
+.detail-current {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: var(--bg);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.detail-current .label { color: var(--text2); font-size: 11px; margin-bottom: 2px; }
+
+.detail-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.detail-search input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.detail-search input:focus { outline: none; border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 4px; }
+
+.search-result {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+
+.search-result .sr-info { overflow: hidden; }
+.search-result .sr-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-result .sr-meta { color: var(--text2); font-size: 11px; }
+.search-result .sr-plays { color: var(--text2); font-size: 11px; white-space: nowrap; }
+
+/* Audio player */
+.player-bar {
+  position: fixed;
+  bottom: 48px;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 99;
+  display: none;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+}
+
+.player-bar.active { display: flex; }
+
+.player-bar .player-info {
+  min-width: 200px;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.player-bar .player-info .player-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-bar .player-info .player-meta { color: var(--text2); }
+
+.player-bar iframe { flex: 1; border: none; height: 100%; }
+
+.player-bar .player-close {
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 18px;
+  padding: 4px 8px;
+}
+
+.player-bar .player-close:hover { color: var(--text); }
+
+/* Play button */
+.play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.play-btn:hover { opacity: 0.85; }
+.play-btn.playing { background: var(--green); }
+
+/* URL resolve input */
+.url-resolve-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.url-resolve-row input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.url-resolve-row input:focus { outline: none; border-color: var(--accent); }
+
+/* Bottom bar */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 100;
+}
+
+.bottom-bar .stats {
+  font-size: 12px;
+  color: var(--text2);
+  flex: 1;
+}
+
+.bottom-bar .stats b { color: var(--text); }
+
+.progress-bar {
+  display: none;
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar.active { display: block; }
+.progress-bar .fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--text2);
+  display: none;
+}
+
+.progress-text.active { display: block; }
+
+/* Playlist connect panel */
+.playlist-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.playlist-panel h3 { font-size: 14px; margin-bottom: 12px; }
+
+.playlist-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.playlist-entry a { color: var(--accent); text-decoration: none; }
+.playlist-entry a:hover { text-decoration: underline; }
+
+.connect-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.connect-row input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* AI DJ Chat */
+.dj-panel { display: none; }
+.dj-panel.active { display: flex; flex-direction: column; height: calc(100vh - 260px); }
+
+.dj-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dj-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dj-msg-user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.dj-msg-dj {
+  align-self: flex-start;
+  background: var(--surface2);
+  border-bottom-left-radius: 4px;
+}
+
+.dj-tracks {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dj-track-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.dj-track-row .dj-track-info { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.dj-track-row .dj-track-tags { color: var(--text2); font-size: 10px; }
+
+.dj-input-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.dj-input-bar input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.dj-input-bar input:focus { outline: none; border-color: var(--accent); }
+
+.dj-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .track-row { grid-template-columns: 30px 1fr auto; }
+  .track-title { display: none; }
+  .track-link { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MART</h1>
+  <div class="user-info" id="userInfo" style="display:none">
+    <img id="userAvatar" src="" alt="">
+    <span id="userName"></span>
+  </div>
+</div>
+
+<!-- Setup screen -->
+<div class="setup" id="setupPanel">
+  <h2>Connect to SoundCloud</h2>
+  <div class="steps">
+    <b>1.</b> Open <b>soundcloud.com</b> and make sure you're logged in<br>
+    <b>2.</b> Press <b>F12</b> to open DevTools, go to <b>Console</b><br>
+    <b>3.</b> Type <code>allow pasting</code> and press Enter<br>
+    <b>4.</b> Paste this and press Enter:<br>
+    <code id="copySnippet">document.cookie.match(/oauth_token=([^;]+)/)?.[1]</code><br>
+    <b>5.</b> Copy the result (the string in quotes) and paste in the first field below<br>
+    <b>6.</b> Then run <code>document.cookie</code> and copy the full result into the second field<br>
+    <span style="color:var(--text2);font-size:12px">(The full cookies are needed for playlist creation — SoundCloud blocks server-side writes without them)</span>
+  </div>
+  <div class="token-row" style="margin-bottom:8px">
+    <input type="text" id="tokenInput" placeholder="OAuth token (from step 5)...">
+  </div>
+  <div class="token-row">
+    <input type="text" id="cookieInput" placeholder="Full document.cookie output (from step 6)...">
+    <button class="btn btn-primary" id="connectBtn" onclick="connect()">Connect</button>
+  </div>
+  <div class="error-msg" id="connectError"></div>
+</div>
+
+<!-- Main app -->
+<div class="main" id="mainApp">
+
+  <!-- Playlist management -->
+  <div class="playlist-panel" id="playlistPanel">
+    <h3>Playlists</h3>
+    <div id="playlistList"></div>
+    <div class="connect-row">
+      <input type="text" id="playlistIdInput" placeholder="Paste playlist ID to connect an existing playlist...">
+      <button class="btn btn-ghost btn-sm" onclick="connectPlaylist()">Connect</button>
+    </div>
+  </div>
+
+  <!-- Import panel -->
+  <div class="playlist-panel" id="importPanel">
+    <h3>Import Library</h3>
+    <div style="font-size:12px; color:var(--text2); margin-bottom:8px; line-height:1.6">
+      Import tracks from <b>Spotify</b>, <b>Apple Music</b>, <b>Yandex Music</b>, <b>VK</b>, or any CSV/JSON/TXT export.<br>
+      New tracks are deduped and added as "missing" — click <b>Rescan Missing</b> to match them on SoundCloud.
+    </div>
+    <div style="display:flex; gap:8px; align-items:center">
+      <input type="file" id="importFileInput" accept=".csv,.json,.txt,.text" style="font-size:12px; color:var(--text2)">
+      <button class="btn btn-primary btn-sm" onclick="importFile()">Import</button>
+    </div>
+    <div id="importResult" style="font-size:12px; margin-top:8px; display:none"></div>
+  </div>
+
+  <!-- Settings panel -->
+  <div class="playlist-panel" id="settingsPanel">
+    <h3>Settings</h3>
+
+    <!-- SC Cookies -->
+    <div style="font-size:12px; color:var(--text2); margin-bottom:4px">
+      <b>SoundCloud Cookies</b> — required for playlist creation.
+      Run <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:11px">document.cookie</code> in the SC console.
+      <span id="scCookieBadge" style="font-size:11px; padding:2px 8px; border-radius:10px; margin-left:4px; display:none"></span>
+    </div>
+    <div class="connect-row" style="margin-bottom:12px">
+      <input type="text" id="scCookieInput" placeholder="Paste document.cookie from SoundCloud console...">
+      <button class="btn btn-ghost btn-sm" onclick="saveScCookies()">Save</button>
+    </div>
+
+    <!-- LLM API Key -->
+    <div style="font-size:12px; color:var(--text2); margin-bottom:4px">
+      <b>OpenRouter API Key</b> — required for Rescan Missing and AI DJ.
+      Get a key at <b>openrouter.ai/keys</b>
+      <span id="llmKeyBadge" style="font-size:11px; padding:2px 8px; border-radius:10px; margin-left:4px; display:none"></span>
+    </div>
+    <div class="connect-row" style="margin-bottom:12px">
+      <input type="password" id="llmKeyInput" placeholder="sk-or-...">
+      <button class="btn btn-ghost btn-sm" onclick="saveLlmKey()">Save Key</button>
+    </div>
+
+    <!-- Classify Library -->
+    <div style="font-size:12px; color:var(--text2); margin-bottom:4px">
+      <b>Classify Library</b> — tags every track with genre/mood/era for AI DJ.
+      <span id="classifyBadge" style="font-size:11px; padding:2px 8px; border-radius:10px; margin-left:4px; display:none"></span>
+    </div>
+    <div class="connect-row">
+      <button class="btn btn-primary btn-sm" id="classifyBtn" onclick="classifyLibrary()">Classify Library</button>
+      <span id="classifyProgress" style="font-size:12px;color:var(--text2)"></span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="all" onclick="switchTab('all')">All <span class="count" id="countAll">0</span></div>
+    <div class="tab" data-tab="matched" onclick="switchTab('matched')">Matched <span class="count" id="countMatched">0</span></div>
+    <div class="tab" data-tab="missing" onclick="switchTab('missing')">Missing <span class="count" id="countMissing">0</span></div>
+    <div class="tab" data-tab="swaps" onclick="switchTab('swaps')">Pending Swaps <span class="count" id="countSwaps">0</span></div>
+    <div class="tab" data-tab="dj" onclick="switchTab('dj')">AI DJ</div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <input type="text" id="filterInput" placeholder="Search tracks..." oninput="renderTracks()">
+  </div>
+
+  <!-- Track list -->
+  <div class="track-list" id="trackList"></div>
+
+  <!-- AI DJ Panel -->
+  <div class="dj-panel" id="djPanel">
+    <div class="dj-messages" id="djMessages">
+      <div class="dj-msg dj-msg-dj">
+        Hey! I'm your AI DJ. Ask me to pick songs from your library.<br>
+        <span style="color:var(--text2);font-size:12px">Try: "all Russian trap", "chill lo-fi", "80s rock classics", "songs for a rainy drive"</span>
+      </div>
+    </div>
+    <div class="dj-input-bar">
+      <input type="text" id="djInput" placeholder="What do you want to listen to?"
+        onkeydown="if(event.key==='Enter') sendDjMessage()">
+      <button class="btn btn-primary" onclick="sendDjMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Audio player -->
+<div class="player-bar" id="playerBar">
+  <div class="player-info">
+    <div class="player-title" id="playerTitle"></div>
+    <div class="player-meta" id="playerMeta"></div>
+  </div>
+  <iframe id="playerFrame" allow="autoplay"
+    src="about:blank"
+    width="100%" height="80" scrolling="no" frameborder="no"></iframe>
+  <div class="player-close" onclick="closePlayer()">&times;</div>
+</div>
+
+<!-- Bottom action bar -->
+<div class="bottom-bar" id="bottomBar" style="display:none">
+  <div class="stats" id="statsText"></div>
+  <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText"></div>
+  <button class="btn btn-ghost" id="rescanBtn" onclick="rescanMissing()">Rescan Missing</button>
+  <button class="btn btn-primary" id="createPlaylistsBtn" onclick="createPlaylists()">Create Playlists</button>
+  <button class="btn btn-green" id="applySwapsBtn" onclick="applySwaps()" style="display:none">Apply Swaps</button>
+</div>
+
+<script>
+// ── State ──
+let allTracks = [];
+let metadata = {};
+let currentTab = 'all';
+let expandedKey = null;
+let pendingSwaps = {}; // key -> {old_url, new_url, new_title, new_uploader}
+let playlists = [];
+
+// ── Setup / Connect ──
+function showApp(user) {
+  document.getElementById('setupPanel').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('bottomBar').style.display = 'flex';
+  document.getElementById('userInfo').style.display = 'flex';
+  document.getElementById('userName').textContent = user.username;
+  if (user.avatar) {
+    document.getElementById('userAvatar').src = user.avatar;
+  }
+}
+
+async function connect() {
+  const token = document.getElementById('tokenInput').value.trim();
+  const cookies = document.getElementById('cookieInput').value.trim();
+  const errEl = document.getElementById('connectError');
+  const btn = document.getElementById('connectBtn');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Connecting...';
+
+  try {
+    const resp = await fetch('/api/connect', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({token, cookies}),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      showApp(data.user);
+      loadTracks();
+    } else {
+      errEl.textContent = data.error || 'Connection failed';
+    }
+  } catch (e) {
+    errEl.textContent = 'Network error: ' + e.message;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Connect';
+}
+
+function showBadge(id, ok) {
+  const badge = document.getElementById(id);
+  if (!badge) return;
+  if (ok) {
+    badge.textContent = 'saved';
+    badge.style.background = '#1a3a1a';
+    badge.style.color = 'var(--green)';
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function showLlmKeyBadge(ok) {
+  showBadge('llmKeyBadge', ok);
+  if (ok) document.getElementById('llmKeyInput').placeholder = 'Key saved — paste new one to replace';
+}
+
+function showScCookieBadge(ok) {
+  showBadge('scCookieBadge', ok);
+  if (ok) document.getElementById('scCookieInput').placeholder = 'Cookies saved — paste new ones to refresh';
+}
+
+async function saveScCookies() {
+  const input = document.getElementById('scCookieInput');
+  const val = input.value.trim();
+  if (!val) return;
+
+  try {
+    const resp = await fetch('/api/settings', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({sc_cookies: val}),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      input.value = '';
+      showScCookieBadge(true);
+    } else {
+      alert('Failed to save: ' + (data.error || 'Unknown error'));
+    }
+  } catch (e) {
+    alert('Network error: ' + e.message);
+  }
+}
+
+async function saveLlmKey() {
+  const input = document.getElementById('llmKeyInput');
+  const val = input.value.trim();
+  if (!val) return;
+
+  try {
+    const resp = await fetch('/api/settings', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({llm: val}),
+    });
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch (e) {
+      alert('Server returned unexpected response: ' + text.substring(0, 100));
+      return;
+    }
+    if (data.ok) {
+      input.value = '';
+      showLlmKeyBadge(true);
+    } else {
+      alert('Failed to save: ' + (data.error || 'Unknown error'));
+    }
+  } catch (e) {
+    alert('Network error saving: ' + e.message);
+  }
+}
+
+// Auto-restore session on page load
+async function restoreSession() {
+  try {
+    const resp = await fetch('/api/session');
+    const data = await resp.json();
+
+    // Restore settings badges
+    if (data.has_llm_key) showLlmKeyBadge(true);
+    if (data.has_sc_cookies) showScCookieBadge(true);
+    if (data.has_tags) showClassifyBadge(data.tags_count);
+
+    if (data.connected && data.user) {
+      showApp(data.user);
+
+      // Restore playlists
+      if (data.playlists) {
+        playlists = data.playlists;
+        data.playlists.forEach(p => addPlaylistToUI(p));
+      }
+
+      // Restore staged swaps
+      if (data.staged_swaps) {
+        pendingSwaps = data.staged_swaps;
+      }
+
+      loadTracks();
+    } else if (data.token_expired) {
+      document.getElementById('connectError').textContent =
+        'Your saved token has expired. Please paste a new one.';
+    }
+  } catch (e) {
+    // Server not ready or network error, show setup
+  }
+}
+
+restoreSession();
+
+// Enter key to connect
+document.getElementById('tokenInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') connect();
+});
+
+// ── Load tracks ──
+async function loadTracks() {
+  const resp = await fetch('/api/tracks');
+  const data = await resp.json();
+  allTracks = data.tracks;
+  metadata = data.metadata;
+  updateCounts();
+  renderTracks();
+  updateStats();
+}
+
+function updateCounts() {
+  const matched = allTracks.filter(t => t.status === 'matched').length;
+  const missing = allTracks.filter(t => t.status !== 'matched').length;
+  document.getElementById('countAll').textContent = allTracks.length;
+  document.getElementById('countMatched').textContent = matched;
+  document.getElementById('countMissing').textContent = missing;
+  document.getElementById('countSwaps').textContent = Object.keys(pendingSwaps).length;
+}
+
+function updateStats() {
+  const swapCount = Object.keys(pendingSwaps).length;
+  const matched = allTracks.filter(t => t.status === 'matched').length;
+  document.getElementById('statsText').innerHTML =
+    `<b>${matched}</b> matched &nbsp; <b>${allTracks.length - matched}</b> missing &nbsp; <b>${swapCount}</b> pending swaps`;
+
+  const swapBtn = document.getElementById('applySwapsBtn');
+  if (swapCount > 0) {
+    swapBtn.style.display = '';
+    swapBtn.textContent = `Apply ${swapCount} Swap${swapCount > 1 ? 's' : ''}`;
+  } else {
+    swapBtn.style.display = 'none';
+  }
+}
+
+// ── Tabs ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  expandedKey = null;
+
+  // Toggle DJ panel vs track list
+  const djPanel = document.getElementById('djPanel');
+  const trackList = document.getElementById('trackList');
+  const filterBar = document.querySelector('.filter-bar');
+  if (tab === 'dj') {
+    djPanel.classList.add('active');
+    trackList.style.display = 'none';
+    filterBar.style.display = 'none';
+    document.getElementById('djInput').focus();
+  } else {
+    djPanel.classList.remove('active');
+    trackList.style.display = '';
+    filterBar.style.display = '';
+    renderTracks();
+  }
+}
+
+// ── Render ──
+function renderTracks() {
+  const filter = document.getElementById('filterInput').value.toLowerCase();
+  const container = document.getElementById('trackList');
+
+  let filtered = allTracks;
+  if (currentTab === 'matched') filtered = filtered.filter(t => t.status === 'matched');
+  else if (currentTab === 'missing') filtered = filtered.filter(t => t.status !== 'matched');
+  else if (currentTab === 'swaps') filtered = filtered.filter(t => t.key in pendingSwaps);
+
+  if (filter) {
+    filtered = filtered.filter(t =>
+      (t.artist + ' ' + t.title).toLowerCase().includes(filter)
+    );
+  }
+
+  // Virtual scroll would be nice, but for ~2000 tracks plain DOM is fine
+  const html = filtered.map((t, i) => {
+    const globalIdx = allTracks.indexOf(t) + 1;
+    const isExpanded = expandedKey === t.key;
+    const hasSwap = t.key in pendingSwaps;
+    const statusClass = hasSwap ? 'swapped' : t.status;
+    const statusLabel = hasSwap ? 'swap staged' : t.status === 'no_match' ? 'missing' : t.status;
+
+    let matchLink = '';
+    if (t.match && t.match.url) {
+      matchLink = `<a class="track-link" href="${t.match.url}" target="_blank" onclick="event.stopPropagation()">SC</a>`;
+    }
+
+    let detail = '';
+    if (isExpanded) {
+      const swap = pendingSwaps[t.key];
+      const escKey = esc(t.key);
+      detail = `<div class="track-detail show" id="detail-${escKey}">
+        ${t.match ? `
+          <div class="detail-current">
+            <button class="play-btn" onclick="event.stopPropagation(); playTrack('${esc(t.match.url)}', '${esc(t.match.title)}', '${esc(t.match.uploader)}')" title="Play">&#9654;</button>
+            <div style="flex:1;overflow:hidden">
+              <div class="label">Current match</div>
+              <b>${esc(t.match.title)}</b> by ${esc(t.match.uploader)}
+              ${t.match.duration ? ` &middot; ${fmtDur(t.match.duration)}` : ''}
+              &nbsp; <a href="${t.match.url}" target="_blank" style="color:var(--accent);font-size:12px" onclick="event.stopPropagation()">open</a>
+            </div>
+          </div>
+        ` : `<div class="detail-current"><div class="label">No match found — search or paste a SoundCloud link below</div></div>`}
+        ${swap ? `
+          <div class="detail-current" style="border-left:3px solid var(--green)">
+            <button class="play-btn" onclick="event.stopPropagation(); playTrack('${esc(swap.new_url)}', '${esc(swap.new_title)}', '${esc(swap.new_uploader)}')" title="Play">&#9654;</button>
+            <div style="flex:1;overflow:hidden">
+              <div class="label" style="color:var(--green)">Replacement staged</div>
+              <b>${esc(swap.new_title)}</b> by ${esc(swap.new_uploader)}
+              &nbsp; <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); unstageSwap('${escKey}')">Cancel</button>
+            </div>
+          </div>
+        ` : ''}
+        <div class="url-resolve-row">
+          <input type="text" placeholder="Paste a SoundCloud link to use as replacement..."
+            id="url-${escKey}"
+            onkeydown="if(event.key==='Enter'){event.stopPropagation(); resolveAndStage('${escKey}');}">
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); resolveAndStage('${escKey}')">Use Link</button>
+        </div>
+        <div class="detail-search">
+          <input type="text" placeholder="Or search SoundCloud by name..."
+            id="search-${escKey}" value="${esc(t.artist + ' ' + t.title)}"
+            onkeydown="if(event.key==='Enter'){event.stopPropagation(); searchReplacement('${escKey}');}">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); searchReplacement('${escKey}')">Search</button>
+        </div>
+        <div class="search-results" id="results-${escKey}"></div>
+      </div>`;
+    }
+
+    return `
+      <div class="track-row ${isExpanded ? 'expanded' : ''}" onclick="toggleExpand('${t.key}')">
+        <div class="track-num">${globalIdx}</div>
+        <div class="track-artist">${esc(t.artist)}</div>
+        <div class="track-title">${esc(t.title)}</div>
+        <span class="track-status status-${statusClass}">${statusLabel}</span>
+        ${matchLink}
+      </div>
+      ${detail}
+    `;
+  }).join('');
+
+  container.innerHTML = html || '<div style="padding:40px;text-align:center;color:var(--text2)">No tracks match your filter</div>';
+}
+
+function toggleExpand(key) {
+  expandedKey = expandedKey === key ? null : key;
+  renderTracks();
+}
+
+// ── Search replacement ──
+async function searchReplacement(key) {
+  const input = document.getElementById('search-' + key);
+  const container = document.getElementById('results-' + key);
+  if (!input || !container) return;
+
+  const q = input.value.trim();
+  if (!q) return;
+
+  container.innerHTML = '<div style="color:var(--text2);font-size:12px;padding:8px">Searching...</div>';
+
+  try {
+    const resp = await fetch('/api/search?q=' + encodeURIComponent(q));
+    const data = await resp.json();
+
+    if (!data.results || data.results.length === 0) {
+      container.innerHTML = '<div style="color:var(--text2);font-size:12px;padding:8px">No results</div>';
+      return;
+    }
+
+    container.innerHTML = data.results.map(r => `
+      <div class="search-result">
+        <button class="play-btn" onclick="event.stopPropagation(); playTrack('${esc(r.url)}', '${esc(r.title)}', '${esc(r.uploader)}')" title="Play">&#9654;</button>
+        <div class="sr-info">
+          <div class="sr-title">${esc(r.title)}</div>
+          <div class="sr-meta">${esc(r.uploader)} ${r.duration ? '&middot; ' + fmtDur(r.duration) : ''}</div>
+        </div>
+        <div class="sr-plays">${r.play_count ? fmtNum(r.play_count) + ' plays' : ''}</div>
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); stageSwap('${key}', '${esc(r.url)}', '${esc(r.title)}', '${esc(r.uploader)}')">Use this</button>
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = '<div style="color:var(--red);font-size:12px;padding:8px">Error: ' + e.message + '</div>';
+  }
+}
+
+// ── Audio player ──
+let currentPlayUrl = null;
+
+function playTrack(url, title, uploader) {
+  const bar = document.getElementById('playerBar');
+  const frame = document.getElementById('playerFrame');
+  const titleEl = document.getElementById('playerTitle');
+  const metaEl = document.getElementById('playerMeta');
+
+  if (currentPlayUrl === url) {
+    closePlayer();
+    return;
+  }
+
+  currentPlayUrl = url;
+  titleEl.textContent = title;
+  metaEl.textContent = uploader;
+  frame.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(url)
+    + '&auto_play=true&color=%23ff6600&hide_related=true&show_comments=false'
+    + '&show_user=false&show_reposts=false&show_teaser=false&visual=false';
+  bar.classList.add('active');
+}
+
+function closePlayer() {
+  const bar = document.getElementById('playerBar');
+  const frame = document.getElementById('playerFrame');
+  frame.src = 'about:blank';
+  bar.classList.remove('active');
+  currentPlayUrl = null;
+}
+
+// ── Resolve URL and stage ──
+async function resolveAndStage(key) {
+  const input = document.getElementById('url-' + key);
+  if (!input) return;
+  const url = input.value.trim();
+  if (!url || !url.includes('soundcloud.com')) {
+    alert('Please paste a valid SoundCloud URL');
+    return;
+  }
+
+  input.disabled = true;
+  try {
+    const resp = await fetch('/api/resolve?url=' + encodeURIComponent(url));
+    const data = await resp.json();
+    if (data.error) {
+      alert('Could not resolve: ' + data.error);
+      return;
+    }
+    stageSwap(key, data.url || url, data.title, data.uploader);
+    input.value = '';
+  } catch (e) {
+    alert('Error: ' + e.message);
+  } finally {
+    input.disabled = false;
+  }
+}
+
+// ── Swap staging (auto-persisted to server) ──
+function saveSwapsToServer() {
+  fetch('/api/staged', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({staged_swaps: pendingSwaps}),
+  }).catch(() => {}); // fire and forget
+}
+
+function stageSwap(key, newUrl, newTitle, newUploader) {
+  const track = allTracks.find(t => t.key === key);
+  if (!track) return;
+
+  pendingSwaps[key] = {
+    old_url: track.match ? track.match.url : null,
+    new_url: newUrl,
+    new_title: newTitle,
+    new_uploader: newUploader,
+  };
+
+  saveSwapsToServer();
+  updateCounts();
+  updateStats();
+  renderTracks();
+}
+
+function unstageSwap(key) {
+  delete pendingSwaps[key];
+  saveSwapsToServer();
+  updateCounts();
+  updateStats();
+  renderTracks();
+}
+
+// ── Create playlists ──
+async function createPlaylists() {
+  const btn = document.getElementById('createPlaylistsBtn');
+  btn.disabled = true;
+  btn.textContent = 'Preparing...';
+
+  let resp;
+  try {
+    resp = await fetch('/api/playlists/create', {method: 'POST'});
+  } catch (e) {
+    alert('Network error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Create Playlists';
+    return;
+  }
+
+  const data = await resp.json();
+  if (!resp.ok || !data.ok) {
+    alert('Error: ' + (data.error || 'Unknown error'));
+    btn.disabled = false;
+    btn.textContent = 'Create Playlists';
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Create Playlists';
+
+  // Show script modal
+  showScriptModal(data.script, data.total_tracks, data.newly_resolved);
+}
+
+function showScriptModal(script, totalTracks, newlyResolved) {
+  // Remove existing modal if any
+  const existing = document.getElementById('scriptModal');
+  if (existing) existing.remove();
+
+  const resolvedNote = newlyResolved > 0
+    ? `<div style="color:var(--green);font-size:12px;margin-bottom:8px">${newlyResolved} new track URLs resolved.</div>`
+    : '';
+
+  const modal = document.createElement('div');
+  modal.id = 'scriptModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:700px;width:100%;max-height:80vh;overflow:auto">
+      <h3 style="margin-bottom:12px">Create ${totalTracks} track playlist on SoundCloud</h3>
+      ${resolvedNote}
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">
+        SoundCloud blocks playlist creation from external tools (DataDome anti-bot).<br>
+        Instead, copy the script below and run it in the SoundCloud console:<br><br>
+        <b>1.</b> Open <b>soundcloud.com</b> in another tab<br>
+        <b>2.</b> Press <b>F12</b> → Console<br>
+        <b>3.</b> Paste the script and press Enter<br>
+        <b>4.</b> Watch the console for progress — it creates playlists in batches of 500
+      </div>
+      <div style="position:relative">
+        <textarea id="scriptTextarea" readonly style="width:100%;height:200px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:monospace;font-size:11px;resize:vertical">${esc(script)}</textarea>
+        <button onclick="copyScript()" class="btn btn-primary" style="position:absolute;top:8px;right:8px">Copy Script</button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button onclick="document.getElementById('scriptModal').remove()" class="btn btn-ghost">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+function copyScript() {
+  const textarea = document.getElementById('scriptTextarea');
+  textarea.select();
+  navigator.clipboard.writeText(textarea.value).then(() => {
+    const btn = textarea.parentElement.querySelector('.btn-primary');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy Script'; }, 2000);
+  }).catch(() => {
+    document.execCommand('copy');
+  });
+}
+
+// ── Retry failed tracks ──
+async function rescanMissing() {
+  const missingCount = allTracks.filter(t => t.status !== 'matched').length;
+  if (missingCount === 0) {
+    alert('No failed tracks to retry!');
+    return;
+  }
+
+  if (!confirm(`Rescan ${missingCount} missing tracks with improved search queries?\nThis may take a while.`)) return;
+
+  const btn = document.getElementById('rescanBtn');
+  const pbar = document.getElementById('progressBar');
+  const pfill = document.getElementById('progressFill');
+  const ptxt = document.getElementById('progressText');
+
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+
+  let resp;
+  try {
+    resp = await fetch('/api/retry-failed', {method: 'POST'});
+  } catch (e) {
+    alert('Network error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Rescan Missing';
+    return;
+  }
+
+  // Non-streaming error (missing API key, no tracks, etc)
+  if (!resp.ok) {
+    let msg = 'Unknown error';
+    try {
+      const errData = await resp.json();
+      msg = errData.error || msg;
+    } catch (e) {
+      try { msg = await resp.text(); } catch (e2) {}
+    }
+    alert('Cannot retry: ' + msg);
+    btn.disabled = false;
+    btn.textContent = 'Rescan Missing';
+    return;
+  }
+
+  // Stream is good — now show progress
+  pbar.classList.add('active');
+  ptxt.classList.add('active');
+  pfill.style.width = '0%';
+
+  try {
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let recovered = 0;
+    let errors = 0;
+    let lastError = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const msg = JSON.parse(line);
+          if (msg.type === 'start') {
+            ptxt.textContent = `Retrying ${msg.total} tracks...`;
+          } else if (msg.type === 'progress') {
+            pfill.style.width = `${(msg.current / msg.total) * 100}%`;
+            const status = recovered ? ` | ${recovered} recovered` : '';
+            const errStatus = errors ? ` | ${errors} errors` : '';
+            ptxt.textContent = `[${msg.current}/${msg.total}] ${msg.artist} — ${msg.title}${status}${errStatus}`;
+          } else if (msg.type === 'match_found') {
+            recovered++;
+            ptxt.textContent = `Found: ${msg.match_title} by ${msg.match_uploader} (${recovered} recovered)`;
+          } else if (msg.type === 'error') {
+            errors++;
+            lastError = msg.message;
+            ptxt.textContent = `ERROR: ${msg.message}`;
+            ptxt.style.color = 'var(--red)';
+            console.error('Retry error:', msg.message);
+          } else if (msg.type === 'done') {
+            pfill.style.width = '100%';
+            ptxt.style.color = '';
+            ptxt.textContent = `Done! Recovered ${msg.recovered} of ${msg.total} tracks`;
+            if (errors) {
+              ptxt.textContent += ` (${errors} errors)`;
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    // Show alert summary if there were errors
+    if (errors && recovered === 0) {
+      alert(`Retry finished with ${errors} errors and 0 recoveries.\n\nLast error: ${lastError}`);
+    }
+
+    await loadTracks();
+  } catch (e) {
+    ptxt.textContent = 'Error: ' + e.message;
+    ptxt.style.color = 'var(--red)';
+    alert('Retry stream error: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Rescan Missing';
+  setTimeout(() => {
+    pbar.classList.remove('active');
+    ptxt.classList.remove('active');
+    ptxt.style.color = '';
+  }, 15000);
+}
+
+function addPlaylistToUI(pl) {
+  const list = document.getElementById('playlistList');
+  const div = document.createElement('div');
+  div.className = 'playlist-entry';
+  div.innerHTML = `<a href="${pl.url}" target="_blank">${esc(pl.title)}</a> <span style="color:var(--text2);font-size:12px">(id: ${pl.id})</span>`;
+  list.appendChild(div);
+}
+
+// ── Connect existing playlist ──
+async function connectPlaylist() {
+  const input = document.getElementById('playlistIdInput');
+  const id = input.value.trim();
+  if (!id) return;
+
+  try {
+    const resp = await fetch('/api/playlists/connect', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id: parseInt(id) || id}),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      addPlaylistToUI(data.playlist);
+      playlists.push(data.playlist);
+      input.value = '';
+    } else {
+      alert('Failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+// ── Apply swaps ──
+async function applySwaps() {
+  const swapList = Object.values(pendingSwaps);
+  if (swapList.length === 0) return;
+
+  if (playlists.length === 0) {
+    alert('Connect a playlist first (paste the playlist ID above)');
+    return;
+  }
+
+  const btn = document.getElementById('applySwapsBtn');
+  btn.disabled = true;
+  btn.textContent = 'Applying...';
+
+  try {
+    const resp = await fetch('/api/playlists/swap', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({swaps: swapList}),
+    });
+    const data = await resp.json();
+
+    if (data.error) {
+      alert('Error: ' + data.error);
+    } else {
+      // Clear successful swaps (server already cleared its copy)
+      pendingSwaps = {};
+      updateCounts();
+      updateStats();
+      renderTracks();
+      alert('Swaps applied successfully!');
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+
+  btn.disabled = false;
+  updateStats();
+}
+
+// ── Import Library ──
+async function importFile() {
+  const input = document.getElementById('importFileInput');
+  const resultDiv = document.getElementById('importResult');
+  if (!input.files || !input.files[0]) {
+    alert('Select a file first');
+    return;
+  }
+
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+
+  resultDiv.style.display = 'block';
+  resultDiv.style.color = 'var(--text2)';
+  resultDiv.textContent = 'Importing...';
+
+  try {
+    const resp = await fetch('/api/import', {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      resultDiv.style.color = 'var(--red)';
+      resultDiv.textContent = data.error || 'Import failed';
+      return;
+    }
+
+    resultDiv.style.color = 'var(--green)';
+    resultDiv.innerHTML = `<b>${data.platform}</b> — ${data.parsed} tracks parsed, ` +
+      `<b>${data.new} new</b>, ${data.duplicates} duplicates. ` +
+      `Library total: ${data.total_library}`;
+
+    if (data.new > 0) {
+      await loadTracks();
+    }
+    input.value = '';
+  } catch (e) {
+    resultDiv.style.color = 'var(--red)';
+    resultDiv.textContent = 'Error: ' + e.message;
+  }
+}
+
+// ── Classify Library ──
+function showClassifyBadge(count) {
+  const badge = document.getElementById('classifyBadge');
+  badge.textContent = count + ' tracks tagged';
+  badge.style.background = '#1a3a1a';
+  badge.style.color = 'var(--green)';
+  badge.style.display = 'inline';
+}
+
+async function classifyLibrary() {
+  const btn = document.getElementById('classifyBtn');
+  const prog = document.getElementById('classifyProgress');
+  btn.disabled = true;
+  btn.textContent = 'Classifying...';
+
+  let resp;
+  try {
+    resp = await fetch('/api/classify', {method: 'POST'});
+  } catch (e) {
+    alert('Network error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Classify Library';
+    return;
+  }
+
+  if (!resp.ok) {
+    let msg = 'Unknown error';
+    try { const d = await resp.json(); msg = d.error || msg; } catch(e) {}
+    alert('Cannot classify: ' + msg);
+    btn.disabled = false;
+    btn.textContent = 'Classify Library';
+    return;
+  }
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, {stream: true});
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      try {
+        const msg = JSON.parse(line);
+        if (msg.type === 'start') {
+          prog.textContent = `${msg.total} tracks to classify (${msg.already_classified} already done)`;
+        } else if (msg.type === 'progress') {
+          prog.textContent = `Batch ${msg.batch}/${msg.total_batches} — ${msg.classified} classified`;
+        } else if (msg.type === 'error') {
+          prog.textContent = msg.message;
+        } else if (msg.type === 'done') {
+          prog.textContent = `Done! ${msg.classified} tracks tagged (${msg.new} new)`;
+          showClassifyBadge(msg.classified);
+        }
+      } catch(e) {}
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Classify Library';
+}
+
+// ── AI DJ Chat ──
+let djHistory = []; // [{role, content}]
+let lastDjTracks = []; // tracks from last DJ response
+
+async function sendDjMessage() {
+  const input = document.getElementById('djInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  // Add user message
+  djHistory.push({role: 'user', content: msg});
+  appendDjBubble('user', msg);
+
+  // Show typing indicator
+  const typingId = appendDjBubble('dj', '<span style="color:var(--text2)">Thinking...</span>');
+
+  try {
+    const resp = await fetch('/api/dj/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: msg, history: djHistory.slice(-6)}),
+    });
+    const data = await resp.json();
+
+    // Remove typing indicator
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) typingEl.remove();
+
+    if (data.error) {
+      appendDjBubble('dj', `<span style="color:var(--red)">${esc(data.error)}</span>`);
+      return;
+    }
+
+    lastDjTracks = data.tracks || [];
+    djHistory.push({role: 'assistant', content: data.reply});
+
+    // Build response HTML
+    let html = esc(data.reply);
+    if (lastDjTracks.length > 0) {
+      html += `<div style="margin-top:6px;font-size:11px;color:var(--text2)">${lastDjTracks.length} track${lastDjTracks.length !== 1 ? 's' : ''} selected</div>`;
+      html += '<div class="dj-tracks">';
+      for (const t of lastDjTracks.slice(0, 50)) {
+        html += `<div class="dj-track-row">
+          <button class="play-btn" style="width:22px;height:22px;font-size:10px" onclick="event.stopPropagation();playTrack('${esc(t.url)}','${esc(t.title)}','${esc(t.artist)}')">&#9654;</button>
+          <div class="dj-track-info"><b>${esc(t.artist)}</b> — ${esc(t.title)}</div>
+          <div class="dj-track-tags">${esc((t.genres||[]).join(', '))}</div>
+        </div>`;
+      }
+      if (lastDjTracks.length > 50) {
+        html += `<div style="padding:4px 8px;font-size:11px;color:var(--text2)">...and ${lastDjTracks.length - 50} more</div>`;
+      }
+      html += '</div>';
+      html += `<div class="dj-actions">
+        <button class="btn btn-primary btn-sm" onclick="createDjPlaylist()">Create Playlist (${lastDjTracks.length} tracks)</button>
+      </div>`;
+    }
+
+    appendDjBubble('dj', html);
+  } catch (e) {
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) typingEl.remove();
+    appendDjBubble('dj', `<span style="color:var(--red)">Error: ${esc(e.message)}</span>`);
+  }
+}
+
+let _djMsgId = 0;
+function appendDjBubble(role, html) {
+  const container = document.getElementById('djMessages');
+  const div = document.createElement('div');
+  const id = 'dj-msg-' + (++_djMsgId);
+  div.id = id;
+  div.className = 'dj-msg dj-msg-' + role;
+  div.innerHTML = html;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+async function createDjPlaylist() {
+  if (!lastDjTracks.length) return;
+
+  const title = prompt('Playlist name:', 'AI DJ Mix') || 'AI DJ Mix';
+  const keys = lastDjTracks.map(t => t.key);
+
+  try {
+    const resp = await fetch('/api/dj/playlist-script', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({track_keys: keys, title}),
+    });
+    const data = await resp.json();
+    if (data.error) {
+      alert('Error: ' + data.error);
+      return;
+    }
+    showScriptModal(data.script, data.total_tracks, 0);
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+// ── Helpers ──
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function fmtDur(sec) {
+  if (!sec) return '';
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function fmtNum(n) {
+  if (!n) return '';
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+</script>
+</body>
+</html>
