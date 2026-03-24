@@ -67,12 +67,31 @@ def _save_session() -> None:
         f.flush()
 
 
+def _detect_llm_env_var(key: str) -> str:
+    """Detect which env var to set based on key prefix."""
+    if key.startswith("sk-or-"):
+        return "OPENROUTER_API_KEY"
+    if key.startswith("sk-ant-"):
+        return "ANTHROPIC_API_KEY"
+    if key.startswith("sk-"):
+        return "OPENAI_API_KEY"
+    # Google Gemini keys are typically 39-char alphanumeric starting with "AIza"
+    if key.startswith("AIza"):
+        return "GEMINI_API_KEY"
+    # Default: try as Gemini (most likely for new users with free key)
+    return "GEMINI_API_KEY"
+
+
 def _apply_llm_key() -> None:
     """Set the LLM API key as env var so matcher.py picks it up."""
     import os
     key = _state.get("llm_api_key")
     if key:
-        os.environ["OPENROUTER_API_KEY"] = key
+        env_var = _detect_llm_env_var(key)
+        # Clear all provider env vars first to avoid conflicts
+        for var in ("GEMINI_API_KEY", "OPENROUTER_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY"):
+            os.environ.pop(var, None)
+        os.environ[env_var] = key
 
 
 def _load_session() -> None:

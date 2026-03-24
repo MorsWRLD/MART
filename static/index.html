@@ -624,12 +624,13 @@ body {
 
     <!-- LLM API Key -->
     <div style="font-size:12px; color:var(--text2); margin-bottom:4px">
-      <b>OpenRouter API Key</b> — required for Rescan Missing and AI DJ.
-      Get a key at <b>openrouter.ai/keys</b>
+      <b>AI API Key</b> — required for Rescan Missing and AI DJ.
+      <b>Free:</b> get a Gemini key at <a href="https://aistudio.google.com/apikeys" target="_blank" style="color:var(--accent)">aistudio.google.com/apikeys</a>
+      (no credit card needed). Also supports OpenRouter, OpenAI, Anthropic.
       <span id="llmKeyBadge" style="font-size:11px; padding:2px 8px; border-radius:10px; margin-left:4px; display:none"></span>
     </div>
     <div class="connect-row" style="margin-bottom:12px">
-      <input type="password" id="llmKeyInput" placeholder="sk-or-...">
+      <input type="password" id="llmKeyInput" placeholder="AIza... (Gemini) or sk-or-... (OpenRouter)">
       <button class="btn btn-ghost btn-sm" onclick="saveLlmKey()">Save Key</button>
     </div>
 

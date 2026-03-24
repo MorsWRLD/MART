@@ -29,11 +29,14 @@ Requires: `httpx`, `click`, `rich`, `flask`
 
 ### 3. Get an AI API key
 
-| Provider | Get key at | Env variable | Cost per 2K tracks |
-|----------|-----------|--------------|---------------------|
+| Provider | Get key at | Env variable | Cost |
+|----------|-----------|--------------|------|
+| **Google Gemini (free)** | https://aistudio.google.com/apikeys | `GEMINI_API_KEY` | **Free** |
 | OpenRouter | https://openrouter.ai/keys | `OPENROUTER_API_KEY` | ~$0.02 |
 | OpenAI | https://platform.openai.com/api-keys | `OPENAI_API_KEY` | ~$0.10 |
 | Anthropic | https://console.anthropic.com/ | `ANTHROPIC_API_KEY` | ~$0.05 |
+
+**Recommended: Google Gemini** — completely free, no credit card required. Go to the link, click "Create API Key", done.
 
 ### 4. Export your music library
 
@@ -190,11 +193,14 @@ pip install -r requirements.txt
 
 ### 3. Получите API-ключ
 
-| Провайдер | Получить ключ | Переменная окружения | Стоимость на 2К треков |
-|-----------|--------------|----------------------|------------------------|
+| Провайдер | Получить ключ | Переменная окружения | Стоимость |
+|-----------|--------------|----------------------|-----------|
+| **Google Gemini (бесплатно)** | https://aistudio.google.com/apikeys | `GEMINI_API_KEY` | **Бесплатно** |
 | OpenRouter | https://openrouter.ai/keys | `OPENROUTER_API_KEY` | ~$0.02 |
 | OpenAI | https://platform.openai.com/api-keys | `OPENAI_API_KEY` | ~$0.10 |
 | Anthropic | https://console.anthropic.com/ | `ANTHROPIC_API_KEY` | ~$0.05 |
+
+**Рекомендуется: Google Gemini** — полностью бесплатно, без кредитной карты. Перейдите по ссылке, нажмите "Create API Key", готово.
 
 ### 4. Экспортируйте музыку
 

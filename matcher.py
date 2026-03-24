@@ -22,6 +22,11 @@ class MatchResult:
 
 # Provider configuration: (base_url, default_model, auth_header_prefix)
 _PROVIDERS = {
+    "GEMINI_API_KEY": (
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+        "gemini-2.0-flash",
+        "Bearer",
+    ),
     "OPENROUTER_API_KEY": (
         "https://openrouter.ai/api/v1",
         "google/gemini-2.0-flash-001",
@@ -52,7 +57,7 @@ def _get_provider() -> tuple[str, str, str, str]:
 
     raise RuntimeError(
         "No LLM API key found. Set one of: "
-        "OPENROUTER_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY"
+        "GEMINI_API_KEY (free), OPENROUTER_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY"
     )
 
 
