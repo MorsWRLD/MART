@@ -551,9 +551,12 @@ body {
 
 <div class="header">
   <h1>MART</h1>
-  <div class="user-info" id="userInfo" style="display:none">
-    <img id="userAvatar" src="" alt="">
-    <span id="userName"></span>
+  <div style="display:flex; align-items:center; gap:12px">
+    <div class="user-info" id="userInfo" style="display:none">
+      <img id="userAvatar" src="" alt="">
+      <span id="userName"></span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="quitMart()" title="Shut down MART server" style="font-size:11px; opacity:0.6">Quit</button>
   </div>
 </div>
 
@@ -605,6 +608,21 @@ body {
       <button class="btn btn-primary btn-sm" onclick="importFile()">Import</button>
     </div>
     <div id="importResult" style="font-size:12px; margin-top:8px; display:none"></div>
+
+    <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border)">
+      <div style="font-size:12px; color:var(--text2); margin-bottom:4px; line-height:1.6">
+        <b>Import from Yandex Music directly</b> — fetches your full liked tracks library via API.<br>
+        To get your token: open <a href="https://music.yandex.ru" target="_blank" style="color:var(--accent)">music.yandex.ru</a>,
+        open DevTools (F12) → Console, paste:<br>
+        <code style="background:var(--bg);padding:2px 6px;border-radius:3px;font-size:11px;user-select:all">JSON.parse(localStorage.getItem('y-music-auth-token') || '{}').access_token</code><br>
+        Or find it in <code style="background:var(--bg);padding:2px 6px;border-radius:3px;font-size:11px">%LOCALAPPDATA%\Yandex\YandexMusic\storage.json</code> → <code style="background:var(--bg);padding:2px 6px;border-radius:3px;font-size:11px">token</code> field.
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <input type="password" id="yandexTokenInput" placeholder="Paste Yandex Music token..." style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="importYandex()">Fetch Library</button>
+      </div>
+      <div id="yandexImportResult" style="font-size:12px; margin-top:8px; display:none"></div>
+    </div>
   </div>
 
   <!-- Settings panel -->
@@ -865,6 +883,13 @@ restoreSession();
 document.getElementById('tokenInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') connect();
 });
+
+// ── Quit MART ──
+async function quitMart() {
+  if (!confirm('Shut down MART server?')) return;
+  try { await fetch('/api/shutdown', { method: 'POST' }); } catch {}
+  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:var(--text2);font-size:18px">MART server stopped. You can close this tab.</div>';
+}
 
 // ── Load tracks ──
 async function loadTracks() {
@@ -1451,6 +1476,43 @@ async function importFile() {
     if (data.new > 0) {
       await loadTracks();
     }
+    input.value = '';
+  } catch (e) {
+    resultDiv.style.color = 'var(--red)';
+    resultDiv.textContent = 'Error: ' + e.message;
+  }
+}
+
+async function importYandex() {
+  const input = document.getElementById('yandexTokenInput');
+  const resultDiv = document.getElementById('yandexImportResult');
+  const token = input.value.trim();
+  if (!token) { alert('Paste your Yandex Music token first'); return; }
+
+  resultDiv.style.display = 'block';
+  resultDiv.style.color = 'var(--text2)';
+  resultDiv.textContent = 'Fetching library from Yandex Music...';
+
+  try {
+    const resp = await fetch('/api/yandex/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      resultDiv.style.color = 'var(--red)';
+      resultDiv.textContent = data.error || 'Import failed';
+      return;
+    }
+
+    resultDiv.style.color = 'var(--green)';
+    resultDiv.innerHTML = `<b>Yandex Music</b> — ${data.parsed} tracks fetched, ` +
+      `<b>${data.new} new</b>, ${data.duplicates} duplicates. ` +
+      `Library total: ${data.total_library}`;
+
+    if (data.new > 0) await loadTracks();
     input.value = '';
   } catch (e) {
     resultDiv.style.color = 'var(--red)';

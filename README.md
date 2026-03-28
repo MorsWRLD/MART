@@ -21,11 +21,11 @@ Download from https://www.python.org/downloads/ — **check "Add Python to PATH"
 
 ### 2. Install dependencies
 
+Open a terminal **in the MART folder** (right-click the folder → "Open in Terminal", or `cd` to it) and run:
+
 ```
 pip install -r requirements.txt
 ```
-
-Requires: `httpx`, `click`, `rich`, `flask`
 
 ### 3. Get an AI API key
 
@@ -50,34 +50,43 @@ Requires: `httpx`, `click`, `rich`, `flask`
 
 **Apple Music** — export your library as CSV from the Music app (File → Library → Export).
 
-**Yandex Music** — export via third-party tools as JSON or CSV.
+**Yandex Music** — import directly in the web UI (paste your token), or export via third-party tools as JSON/CSV.
 
 Any CSV with `artist` and `title` columns works. JSON arrays with `artist`/`title` fields work too.
 
-### 5. Run — Web UI (recommended)
+### 5. Launch MART
+
+Open a terminal **in the MART folder** and run:
 
 ```
 python ui.py
 ```
 
-Open http://localhost:8000 in your browser. The web UI lets you:
+That's it. Your browser will open automatically at `http://localhost:8000`.
+
+> **"Nothing happened"?** Make sure your terminal is in the right folder.
+> Right-click the MART folder in Explorer → **"Open in Terminal"**, then type the command.
+>
+> **Port already in use?** Another app (or a previous MART instance) is using port 8000.
+> Use a different port: `python ui.py` won't conflict if you click **Quit** in the UI when you're done.
+
+The web UI lets you:
 
 1. **Connect to SoundCloud** — paste your OAuth token (instructions shown in-app)
-2. **Set API key** — enter your LLM API key in Settings
-3. **Import library** — upload your exported file (auto-detects format and platform)
+2. **Set API key** — enter your AI key in Settings (Gemini is free)
+3. **Import library** — upload your exported file or import directly from Yandex Music
 4. **Scan tracks** — click Rescan to search SoundCloud for all tracks
 5. **Review results** — browse matched/unmatched tracks, listen to previews
 6. **AI DJ** — open the DJ tab, type natural language queries to build playlists
 7. **Create playlists** — generates a script to paste in SoundCloud's browser console
 
-### 5 (alt). Run — Command line
+When you're done, click **Quit** in the top-right corner to stop the server cleanly.
+
+### 5 (alt). Command line only
 
 ```
-set OPENROUTER_API_KEY=sk-or-your-key-here
 python mart.py --input playlist.txt
 ```
-
-Or just drag your file onto `run.bat`.
 
 ## Web UI Guide
 
@@ -187,6 +196,8 @@ MIT
 
 ### 2. Установите зависимости
 
+Откройте терминал **в папке MART** (правый клик по папке → "Открыть в Терминале", или `cd` до неё) и запустите:
+
 ```
 pip install -r requirements.txt
 ```
@@ -214,34 +225,43 @@ pip install -r requirements.txt
 
 **Apple Music** — экспорт библиотеки в CSV (Файл → Медиатека → Экспорт).
 
-**Яндекс Музыка** — экспорт через сторонние инструменты в JSON или CSV.
+**Яндекс Музыка** — импорт напрямую через веб-интерфейс (вставьте токен), или экспорт через сторонние инструменты в JSON/CSV.
 
 Любой CSV с колонками `artist` и `title` подойдёт. JSON-массивы с полями `artist`/`title` тоже работают.
 
-### 5. Запуск — Веб-интерфейс (рекомендуется)
+### 5. Запуск MART
+
+Откройте терминал **в папке MART** и запустите:
 
 ```
 python ui.py
 ```
 
-Откройте http://localhost:8000 в браузере. Веб-интерфейс позволяет:
+Всё. Браузер откроется автоматически на `http://localhost:8000`.
+
+> **«Ничего не произошло»?** Убедитесь, что терминал открыт в правильной папке.
+> Правый клик по папке MART в Проводнике → **«Открыть в Терминале»**, затем введите команду.
+>
+> **Порт занят?** Другое приложение (или предыдущий MART) использует порт 8000.
+> Нажмите **Quit** в интерфейсе MART, когда заканчиваете работу — это освободит порт.
+
+Веб-интерфейс позволяет:
 
 1. **Подключиться к SoundCloud** — вставьте OAuth-токен (инструкция в приложении)
-2. **Указать API-ключ** — введите ключ в Настройках
-3. **Импортировать библиотеку** — загрузите файл (формат определяется автоматически)
+2. **Указать API-ключ** — введите ключ в Настройках (Gemini — бесплатно)
+3. **Импортировать библиотеку** — загрузите файл или импортируйте напрямую из Яндекс Музыки
 4. **Сканировать треки** — нажмите Rescan для поиска на SoundCloud
 5. **Просмотреть результаты** — найденные/ненайденные треки, предпрослушивание
 6. **AI DJ** — откройте вкладку DJ, пишите запросы для составления плейлистов
 7. **Создать плейлисты** — генерирует скрипт для консоли браузера SoundCloud
 
-### 5 (альт). Запуск — Командная строка
+Когда закончите, нажмите **Quit** в правом верхнем углу, чтобы корректно остановить сервер.
+
+### 5 (альт). Только командная строка
 
 ```
-set OPENROUTER_API_KEY=sk-or-ваш-ключ
 python mart.py --input playlist.txt
 ```
-
-Или перетащите файл на `run.bat`.
 
 ## Руководство по веб-интерфейсу
 

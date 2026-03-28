@@ -1351,6 +1351,73 @@ def api_import():
     })
 
 
+@app.route("/api/yandex/import", methods=["POST"])
+def api_yandex_import():
+    """Fetch liked tracks from Yandex Music using an API token and import them."""
+    body = request.get_json(silent=True) or {}
+    token = (body.get("token") or "").strip()
+    if not token:
+        return jsonify({"error": "No token provided"}), 400
+
+    from yandex_import import fetch_liked_tracks
+    tracks = fetch_liked_tracks(token)
+
+    if not tracks:
+        return jsonify({"error": "No liked tracks found in Yandex Music library"}), 400
+
+    # Same dedup + save logic as file import
+    data = _load_results()
+    existing_keys = set(data["tracks"].keys())
+
+    new_tracks = []
+    dupes = 0
+    for track in tracks:
+        key = f"{track.artist.lower().strip()}::{track.title.lower().strip()}"
+        if key in existing_keys:
+            dupes += 1
+        else:
+            existing_keys.add(key)
+            new_tracks.append((key, track))
+
+    for key, track in new_tracks:
+        data["tracks"][key] = {
+            "source": {
+                "artist": track.artist,
+                "title": track.title,
+                "duration": track.duration,
+            },
+            "status": "no_match",
+            "match": None,
+            "candidates_count": 0,
+            "llm_reason": "Imported from Yandex Music",
+        }
+
+    if new_tracks:
+        data["metadata"]["total_tracks"] = len(data["tracks"])
+        data["metadata"]["no_match"] = sum(
+            1 for e in data["tracks"].values() if e["status"] == "no_match"
+        )
+        _save_results(data)
+
+    return jsonify({
+        "ok": True,
+        "platform": "Yandex Music",
+        "parsed": len(tracks),
+        "new": len(new_tracks),
+        "duplicates": dupes,
+        "total_library": len(data["tracks"]),
+    })
+
+
+@app.route("/api/shutdown", methods=["POST"])
+def api_shutdown():
+    """Cleanly shut down the MART server."""
+    import os
+    import threading
+    threading.Timer(0.3, lambda: os._exit(0)).start()
+    return jsonify({"ok": True})
+
+
 def run_ui(host: str = "127.0.0.1", port: int = 8000):
     """Start the MART UI server."""
     import os
@@ -1370,4 +1437,9 @@ def run_ui(host: str = "127.0.0.1", port: int = 8000):
     threading.Timer(1.0, lambda: webbrowser.open(url)).start()
 
     print(f"\n  MART UI running at {url}\n")
+    print("  Press Ctrl+C or click Quit in the UI to stop.\n")
     app.run(host=host, port=port, debug=False)
+
+
+if __name__ == "__main__":
+    run_ui()
