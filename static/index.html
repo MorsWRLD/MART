@@ -714,7 +714,8 @@ body {
   <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
   <div class="progress-text" id="progressText"></div>
   <button class="btn btn-ghost" id="rescanBtn" onclick="rescanMissing()">Rescan Missing</button>
-  <button class="btn btn-primary" id="createPlaylistsBtn" onclick="createPlaylists()">Create Playlists</button>
+  <button class="btn btn-primary" id="createPlaylistsBtn" onclick="createPlaylists('new')">Create New Playlist</button>
+  <button class="btn btn-ghost" id="recreateAllBtn" onclick="createPlaylists('all')" title="Recreate playlists with ALL matched tracks">Recreate All</button>
   <button class="btn btn-green" id="applySwapsBtn" onclick="applySwaps()" style="display:none">Apply Swaps</button>
 </div>
 
@@ -1169,44 +1170,49 @@ function unstageSwap(key) {
 }
 
 // ── Create playlists ──
-async function createPlaylists() {
+async function createPlaylists(mode = 'new') {
   const btn = document.getElementById('createPlaylistsBtn');
-  btn.disabled = true;
+  const btn2 = document.getElementById('recreateAllBtn');
+  btn.disabled = btn2.disabled = true;
   btn.textContent = 'Preparing...';
 
   let resp;
   try {
-    resp = await fetch('/api/playlists/create', {method: 'POST'});
+    resp = await fetch('/api/playlists/create', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({mode}),
+    });
   } catch (e) {
     alert('Network error: ' + e.message);
-    btn.disabled = false;
-    btn.textContent = 'Create Playlists';
+    btn.disabled = btn2.disabled = false;
+    btn.textContent = 'Create New Playlist';
     return;
   }
 
   const data = await resp.json();
   if (!resp.ok || !data.ok) {
     alert('Error: ' + (data.error || 'Unknown error'));
-    btn.disabled = false;
-    btn.textContent = 'Create Playlists';
+    btn.disabled = btn2.disabled = false;
+    btn.textContent = 'Create New Playlist';
     return;
   }
 
-  btn.disabled = false;
-  btn.textContent = 'Create Playlists';
+  btn.disabled = btn2.disabled = false;
+  btn.textContent = 'Create New Playlist';
 
-  // Show script modal
-  showScriptModal(data.script, data.total_tracks, data.newly_resolved);
+  const extra = data.skipped_existing ? ` (${data.skipped_existing} already in playlists)` : '';
+  showScriptModal(data.script, data.total_tracks, data.newly_resolved, extra);
 }
 
-function showScriptModal(script, totalTracks, newlyResolved) {
+function showScriptModal(script, totalTracks, newlyResolved, extraNote = '') {
   // Remove existing modal if any
   const existing = document.getElementById('scriptModal');
   if (existing) existing.remove();
 
   const resolvedNote = newlyResolved > 0
-    ? `<div style="color:var(--green);font-size:12px;margin-bottom:8px">${newlyResolved} new track URLs resolved.</div>`
-    : '';
+    ? `<div style="color:var(--green);font-size:12px;margin-bottom:8px">${newlyResolved} new track URLs resolved.${extraNote}</div>`
+    : (extraNote ? `<div style="color:var(--text2);font-size:12px;margin-bottom:8px">${extraNote}</div>` : '');
 
   const modal = document.createElement('div');
   modal.id = 'scriptModal';

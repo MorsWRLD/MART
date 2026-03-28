@@ -397,14 +397,21 @@ def api_playlists_create():
     SoundCloud's DataDome anti-bot blocks server-side POST requests regardless
     of cookies/headers. The only way to create playlists is from the user's
     actual browser session on soundcloud.com.
+
+    By default, only includes tracks not yet added to playlists.
+    Pass {"mode": "all"} to recreate playlists with all matched tracks.
     """
     if not _state["oauth_token"]:
         return jsonify({"error": "Not connected"}), 401
+
+    body = request.get_json(silent=True) or {}
+    mode = body.get("mode", "new")  # "new" (default) or "all"
 
     # Build complete ID list from results.json + track_ids.json
     results = _load_results()
     id_data = _load_track_ids()
     resolved = dict(id_data.get("resolved", {}))
+    already_in_playlists = set(id_data.get("in_playlists", []))
 
     # Collect all matched URLs
     matched_urls = []
@@ -439,15 +446,27 @@ def api_playlists_create():
     if not all_ids:
         return jsonify({"error": "No track IDs could be resolved"}), 400
 
-    cid = _get_client_id()
+    # Filter to only new tracks unless "all" mode requested
+    if mode == "new" and already_in_playlists:
+        new_ids = [tid for tid in all_ids if tid not in already_in_playlists]
+        if not new_ids:
+            return jsonify({"error": "All tracks are already in playlists. Use 'Recreate All' to regenerate."}), 400
+        target_ids = new_ids
+        title = "MART Import (New)"
+    else:
+        target_ids = all_ids
+        title = "MART Import"
 
-    # Generate the JS script
-    script = _generate_playlist_script(all_ids, cid)
+    cid = _get_client_id()
+    script = _generate_playlist_script(target_ids, cid, title)
 
     return jsonify({
         "ok": True,
-        "total_tracks": len(all_ids),
+        "total_tracks": len(target_ids),
+        "total_library": len(all_ids),
+        "skipped_existing": len(all_ids) - len(target_ids),
         "newly_resolved": newly_resolved,
+        "mode": mode,
         "script": script,
     })
 
@@ -548,7 +567,7 @@ def _generate_playlist_script(all_ids: list[int], client_id: str, playlist_title
     await fetch('http://127.0.0.1:{_get_server_port()}/api/playlists/report', {{
       method: 'POST',
       headers: {{'Content-Type': 'application/json'}},
-      body: JSON.stringify({{playlists: results}})
+      body: JSON.stringify({{playlists: results, track_ids: ALL_IDS}})
     }});
     console.log('MART: Results saved to server.');
   }} catch (e) {{
@@ -581,6 +600,16 @@ def api_playlists_report():
     playlists = body.get("playlists", [])
     _state["playlists"] = [{"id": p["id"], "url": p["url"], "title": p["title"]} for p in playlists]
     _save_session()
+
+    # Mark track IDs as "in playlists" so future creates only include new tracks
+    reported_ids = body.get("track_ids", [])
+    if reported_ids:
+        id_data = _load_track_ids()
+        existing = set(id_data.get("in_playlists", []))
+        existing.update(reported_ids)
+        id_data["in_playlists"] = list(existing)
+        with open(TRACK_IDS_FILE, "w", encoding="utf-8") as f:
+            json.dump(id_data, f, ensure_ascii=False, indent=2)
 
     resp = jsonify({"ok": True, "saved": len(playlists)})
     resp.headers["Access-Control-Allow-Origin"] = "https://soundcloud.com"
